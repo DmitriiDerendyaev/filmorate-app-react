@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Button, ToastAndroid, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { Animated } from 'react-native';
 
@@ -7,7 +7,9 @@ export default function FilmDetailScreen({ route }) {
   const { filmId } = route.params;
   const [film, setFilm] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [liked, setLiked] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];  // Инициализация значения анимации
+  const userId = 1; // Пример userId, используемый для отправки запроса
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -15,17 +17,52 @@ export default function FilmDetailScreen({ route }) {
       duration: 2000,
       useNativeDriver: true,
     }).start();
-    
+
     axios.get(`http://localhost:8080/films/${filmId}`)
       .then(response => {
         setFilm(response.data);
         setLoading(false);
+        setLiked(response.data.likedBy.includes(userId)); // Проверка наличия лайка
       })
       .catch(error => {
         console.error(error);
         setLoading(false);
       });
   }, [filmId]);
+
+  const handleLike = () => {
+    if (liked) {
+      axios.delete(`http://localhost:8080/films/${filmId}/like/${userId}`)
+        .then(response => {
+          setFilm(response.data);
+          setLiked(false);
+          showToast('Лайк удалён.');
+        })
+        .catch(error => {
+          console.error(error);
+          showToast('Ошибка при удалении лайка.');
+        });
+    } else {
+      axios.put(`http://localhost:8080/films/${filmId}/like/${userId}`)
+        .then(response => {
+          setFilm(response.data);
+          setLiked(true);
+          showToast('Спасибо за лайк!');
+        })
+        .catch(error => {
+          console.error(error);
+          showToast('Ошибка при добавлении лайка.');
+        });
+    }
+  };
+
+  const showToast = (message) => {
+    ToastAndroid.showWithGravity(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM
+    );
+  };
 
   if (loading) {
     return (
@@ -70,7 +107,9 @@ export default function FilmDetailScreen({ route }) {
         <Text style={styles.infoText}>{film.rate}</Text>
       </View>
       <View style={styles.likeButtonContainer}>
-        <Button title="👍 Лайк" onPress={() => alert('Спасибо за лайк!')} />
+        <TouchableOpacity onPress={handleLike} style={[styles.likeButton, liked ? styles.liked : styles.notLiked]}>
+          <Text style={styles.likeButtonText}>{liked ? '👎 Убрать лайк' : '👍 Лайк'}</Text>
+        </TouchableOpacity>
       </View>
     </Animated.ScrollView>
   );
@@ -125,5 +164,20 @@ const styles = StyleSheet.create({
   likeButtonContainer: {
     marginTop: 24,
     alignItems: 'center',
+  },
+  likeButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+  },
+  liked: {
+    backgroundColor: '#ff6b6b',
+  },
+  notLiked: {
+    backgroundColor: '#4caf50',
+  },
+  likeButtonText: {
+    fontSize: 16,
+    color: '#fff',
   },
 });
