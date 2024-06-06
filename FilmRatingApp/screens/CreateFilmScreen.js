@@ -1,8 +1,10 @@
+// CreateFilmScreen.js
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Picker } from 'react-native';
 import axios from 'axios';
 
-const CreateFilmScreen = () => {
+const CreateFilmScreen = ({ navigation }) => {
   const [filmName, setFilmName] = useState('');
   const [description, setDescription] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
@@ -14,24 +16,22 @@ const CreateFilmScreen = () => {
   const [genreList, setGenreList] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/mpa')
-      .then(response => {
-        setMpaList(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching MPA list:', error);
-      });
+    const fetchData = async () => {
+      try {
+        const mpaResponse = await axios.get('http://localhost:8080/mpa');
+        setMpaList(mpaResponse.data);
+        
+        const genreResponse = await axios.get('http://localhost:8080/genres');
+        setGenreList(genreResponse.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
 
-    axios.get('http://localhost:8080/genres')
-      .then(response => {
-        setGenreList(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching genre list:', error);
-      });
+    fetchData();
   }, []);
 
-  const handleCreateFilm = () => {
+  const handleCreateFilm = async () => {
     const newFilm = {
       name: filmName,
       releaseDate: releaseDate,
@@ -42,16 +42,13 @@ const CreateFilmScreen = () => {
       genres: [{ id: selectedGenre }],
     };
 
-    axios.post('http://localhost:8080/films', newFilm)
-      .then(response => {
-        console.log('Film created successfully:', response.data);
-        // Дополнительная логика по успешному созданию фильма
-        navigation.navigate('Films');
-      })
-      .catch(error => {
-        console.error('Error creating film:', error);
-        // Обработка ошибки при создании фильма
-      });
+    try {
+      const response = await axios.post('http://localhost:8080/films', newFilm);
+      console.log('Film created successfully:', response.data);
+      navigation.navigate('Films', { refresh: true }); // Переход на FilmScreen с параметром обновления
+    } catch (error) {
+      console.error('Error creating film:', error);
+    }
   };
 
   return (
