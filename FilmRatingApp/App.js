@@ -5,6 +5,7 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import FilmScreen from './screens/FilmScreen';
 import GenreScreen from './screens/GenreScreen';
+import FilmDetailScreen from './screens/FilmDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,7 @@ export default function App() {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Films" component={FilmScreen} />
         <Stack.Screen name="Genres" component={GenreScreen} />
+        <Stack.Screen name="FilmDetail" component={FilmDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
