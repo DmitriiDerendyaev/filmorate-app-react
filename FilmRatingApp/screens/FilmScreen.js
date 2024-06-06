@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import axios from 'axios';
+import FilmList from '../components/FilmList';
 
 export default function FilmScreen() {
   const [films, setFilms] = useState([]);
@@ -17,16 +18,7 @@ export default function FilmScreen() {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={films}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.title}>{item.name}</Text>
-            <Text>{item.description}</Text>
-          </View>
-        )}
-      />
+      <FilmList films={films} />
     </View>
   );
 }
@@ -36,14 +28,5 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
-  },
-  item: {
-    padding: 16,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
