@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 export default function LoginScreen({ navigation }) {
@@ -12,11 +13,24 @@ export default function LoginScreen({ navigation }) {
       password
     })
     .then(response => {
-      // Успешная авторизация
-      navigation.navigate('Films');
+      if (response.data && response.data.id !== undefined) {
+        // Успешная авторизация
+        const userId = response.data.id;
+        // Сохраняем ID пользователя в локальное хранилище
+        AsyncStorage.setItem('userId', userId.toString())
+          .then(() => {
+            // Переходим на экран фильмов
+            navigation.navigate('Films');
+          })
+          .catch(error => {
+            console.error('Error saving user ID:', error);
+          });
+      } else {
+        console.error('Invalid response data:', response.data);
+      }
     })
     .catch(error => {
-      console.error(error);
+      console.error('Login error:', error);
     });
   };
 

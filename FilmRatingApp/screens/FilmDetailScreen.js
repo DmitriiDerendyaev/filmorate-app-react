@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Button, ToastAndroid, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Импорт AsyncStorage
 import { Animated } from 'react-native';
 
 export default function FilmDetailScreen({ route }) {
@@ -9,7 +10,6 @@ export default function FilmDetailScreen({ route }) {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];  // Инициализация значения анимации
-  const userId = 1; // Пример userId, используемый для отправки запроса
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -18,42 +18,54 @@ export default function FilmDetailScreen({ route }) {
       useNativeDriver: true,
     }).start();
 
-    axios.get(`http://localhost:8080/films/${filmId}`)
-      .then(response => {
-        setFilm(response.data);
-        setLoading(false);
-        setLiked(response.data.likedBy.includes(userId)); // Проверка наличия лайка
+    // Получаем ID пользователя из AsyncStorage
+    AsyncStorage.getItem('userId')
+      .then(userId => {
+        if (userId) {
+          // Отправляем запрос на сервер для получения информации о фильме
+          axios.get(`http://localhost:8080/films/${filmId}`)
+            .then(response => {
+              setFilm(response.data);
+              setLoading(false);
+              // Проверяем, лайкнул ли пользователь данный фильм
+              setLiked(response.data.likedBy.includes(parseInt(userId)));
+            })
+            .catch(error => {
+              console.error(error);
+              setLoading(false);
+            });
+        }
       })
       .catch(error => {
-        console.error(error);
-        setLoading(false);
+        console.error('Error retrieving user ID:', error);
       });
   }, [filmId]);
 
   const handleLike = () => {
-    if (liked) {
-      axios.delete(`http://localhost:8080/films/${filmId}/like/${userId}`)
-        .then(response => {
-          setFilm(response.data);
-          setLiked(false);
-          showToast('Лайк удалён.');
-        })
-        .catch(error => {
-          console.error(error);
-          showToast('Ошибка при удалении лайка.');
-        });
-    } else {
-      axios.put(`http://localhost:8080/films/${filmId}/like/${userId}`)
-        .then(response => {
-          setFilm(response.data);
-          setLiked(true);
-          showToast('Спасибо за лайк!');
-        })
-        .catch(error => {
-          console.error(error);
-          showToast('Ошибка при добавлении лайка.');
-        });
-    }
+    AsyncStorage.getItem('userId')
+      .then(userId => {
+        if (userId) {
+          // Определяем URL в зависимости от того, лайкнут фильм или нет
+          const url = liked ? `http://localhost:8080/films/${filmId}/like/${userId}` : `http://localhost:8080/films/${filmId}/like/${userId}`;
+          // Выполняем запрос на сервер для установки или удаления лайка
+          axios({
+            method: liked ? 'delete' : 'put',
+            url: url,
+          })
+            .then(response => {
+              setFilm(response.data);
+              setLiked(!liked);
+              showToast(liked ? 'Лайк удален.' : 'Лайк добавлен.');
+            })
+            .catch(error => {
+              console.error('Like action error:', error);
+              showToast('Ошибка при обработке лайка.');
+            });
+        }
+      })
+      .catch(error => {
+        console.error('Error retrieving user ID:', error);
+      });
   };
 
   const showToast = (message) => {
