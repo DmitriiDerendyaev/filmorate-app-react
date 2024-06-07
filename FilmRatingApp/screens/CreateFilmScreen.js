@@ -37,7 +37,6 @@ const CreateFilmScreen = ({ navigation }) => {
       releaseDate: releaseDate,
       description: description,
       duration: duration,
-      rate: rate,
       mpa: { id: selectedMpa },
       genres: [{ id: selectedGenre }],
     };
@@ -78,13 +77,6 @@ const CreateFilmScreen = ({ navigation }) => {
         placeholder="Duration (minutes)"
         value={duration}
         onChangeText={setDuration}
-        keyboardType="numeric"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Rate"
-        value={rate}
-        onChangeText={setRate}
         keyboardType="numeric"
       />
       <Picker

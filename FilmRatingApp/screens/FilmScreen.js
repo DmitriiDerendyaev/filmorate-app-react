@@ -1,3 +1,4 @@
+// FilmScreen.js
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, Button } from 'react-native';
 import axios from 'axios';
@@ -6,6 +7,7 @@ import FilmList from '../components/FilmList';
 export default function FilmScreen({ navigation, route }) {
   const [films, setFilms] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [sortDirection, setSortDirection] = useState('asc'); // состояние для направления сортировки
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,11 +45,25 @@ export default function FilmScreen({ navigation, route }) {
     navigation.navigate('MpaScreen');
   };
 
+  // Функция для сортировки фильмов по рейтингу
+  const sortFilms = () => {
+    const sortedFilms = [...films].sort((a, b) => {
+      if (sortDirection === 'asc') {
+        return a.rate - b.rate;
+      } else {
+        return b.rate - a.rate;
+      }
+    });
+    setFilms(sortedFilms);
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <Button title="Жанры" onPress={goToGenres} />
         <Button title="Рейтинги" onPress={goToMpas} />
+        <Button title="Сортировать по рейтингу" onPress={sortFilms} />
       </View>
       <FilmList films={films} />
     </View>
