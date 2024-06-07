@@ -1,32 +1,32 @@
-// GenreScreen.js
+// MpaScreen.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import axios from 'axios';
-import GenreItem from '../components/GenreItem';
+import MpaItem from '../components/MpaItem';
 
-const GenreScreen = () => {
-  const [genres, setGenres] = useState([]);
+const MpaScreen = () => {
+  const [mpas, setMpas] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/genres');
-        setGenres(response.data);
+        const response = await axios.get('http://localhost:8080/mpa');
+        setMpas(response.data);
       } catch (error) {
-        console.error('Error fetching genres:', error);
+        console.error('Error fetching mpas:', error);
       }
     };
 
     fetchData();
   }, []);
 
-  const renderItem = ({ item }) => <GenreItem genre={item} />;
+  const renderItem = ({ item }) => <MpaItem mpa={item} />;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Жанры:</Text>
+      <Text style={styles.title}>Рейтинги:</Text>
       <FlatList
-        data={genres}
+        data={mpas}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.list}
@@ -51,4 +51,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GenreScreen;
+export default MpaScreen;

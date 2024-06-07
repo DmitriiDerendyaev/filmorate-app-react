@@ -6,6 +6,7 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import FilmScreen from './screens/FilmScreen';
 import GenreScreen from './screens/GenreScreen';
+import MpaScreen from './screens/MpaScreen';
 import FilmDetailScreen from './screens/FilmDetailScreen';
 import CreateFilmScreen from './screens/CreateFilmScreen';
 
@@ -14,13 +15,39 @@ const Tab = createBottomTabNavigator();
 
 const MainStack = () => (
   <Stack.Navigator initialRouteName="Login">
-    <Stack.Screen name="Login" component={LoginScreen} />
-    <Stack.Screen name="Register" component={RegisterScreen} />
-    <Stack.Screen name="Films" component={FilmScreen} />
-    <Stack.Screen name="Genres" component={GenreScreen} />
-    <Stack.Screen name="FilmDetail" component={FilmDetailScreen} />
+    <Stack.Screen 
+      name="Login" 
+      component={LoginScreen} 
+      options={{ headerShown: false }} 
+    />
+    <Stack.Screen 
+      name="Register" 
+      component={RegisterScreen} 
+      options={{ title: 'Register' }} 
+    />
+    <Stack.Screen 
+      name="Films" 
+      component={FilmScreen} 
+      options={{ headerShown: false }} 
+    />
+    <Stack.Screen 
+      name="Genres" 
+      component={GenreScreen} 
+      options={{ title: 'Genres' }} 
+    />
+    <Stack.Screen 
+      name="FilmDetail" 
+      component={FilmDetailScreen} 
+      options={{ title: 'Film Detail' }} 
+    />
+        <Stack.Screen 
+      name="MpaScreen" 
+      component={MpaScreen} 
+      options={{ title: 'MpaScreen' }} 
+    />
   </Stack.Navigator>
 );
+
 
 const App = () => {
   return (
@@ -28,7 +55,6 @@ const App = () => {
       <Tab.Navigator>
         <Tab.Screen name="Main" component={MainStack} />
         <Tab.Screen name="CreateFilm" component={CreateFilmScreen} />
-        {/* Добавьте другие экраны здесь */}
       </Tab.Navigator>
     </NavigationContainer>
   );
